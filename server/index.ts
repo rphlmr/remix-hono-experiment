@@ -1,17 +1,20 @@
 import { serve } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'
 import * as build from '@remix-run/dev/server-build'
-import { logDevReady } from '@remix-run/node'
+import { broadcastDevReady } from '@remix-run/node'
 import { Hono, MiddlewareHandler } from 'hono'
 import { logger } from 'hono/logger'
 import { remix } from 'remix-hono/handler'
 
 const NODE_ENV = process.env.NODE_ENV === 'production' ? 'production' : 'development'
 
-// type your Hono variables (used with ctx.get/ctx.set) here
+/* Hono envs used with ctx.env */
+type Bindings = {}
+
+/* Hono variables used with ctx.get/ctx.set */
 type Variables = {}
 
-type ContextEnv = { Variables: Variables }
+type ContextEnv = { Bindings: Bindings; Variables: Variables }
 
 const app = new Hono<ContextEnv>()
 
@@ -37,10 +40,13 @@ app.use(
 )
 
 // start app, broadcast devReady in dev mode
-serve(app, () => {
-  if (NODE_ENV === 'development') logDevReady(build)
-})
+serve(app, (info) => {
+  console.log(`Listening on http://localhost:${info.port}`) // Listening on http://localhost:3000
 
+  if (NODE_ENV === 'development') {
+    broadcastDevReady(build)
+  }
+})
 // add cache header to the response
 function cache(seconds: number): MiddlewareHandler {
   return async function setCache(c, next) {
