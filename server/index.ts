@@ -2,7 +2,8 @@ import { serve } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'
 import * as build from '@remix-run/dev/server-build'
 import { broadcastDevReady } from '@remix-run/node'
-import { Hono, MiddlewareHandler } from 'hono'
+import type { MiddlewareHandler } from 'hono'
+import { Hono } from 'hono'
 import { logger } from 'hono/logger'
 import { remix } from 'remix-hono/handler'
 
@@ -47,6 +48,7 @@ serve(app, (info) => {
     broadcastDevReady(build)
   }
 })
+
 // add cache header to the response
 function cache(seconds: number): MiddlewareHandler {
   return async function setCache(c, next) {
